@@ -7,8 +7,8 @@
     <version>1.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>vertx-spring-boot-starter-http</artifactId>
-  <name>Vert.x Spring Boot starter - http</name>
+  <artifactId>vertx-spring-boot-starter-rsocket</artifactId>
+  <name>Vert.x Spring Boot starter - rsocket</name>
 
   <properties>
     <it.http.skip.fileTransfer>false</it.http.skip.fileTransfer>
@@ -32,6 +32,11 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-rsocket</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -89,65 +94,17 @@
       <artifactId>vertx-codegen</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations</artifactId>
+      <version>13.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+      <version>2.3.1.RELEASE</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>http-core</id>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-            <phase>integration-test</phase>
-            <configuration>
-              <includes>
-                <include>dev/snowdrop/vertx/http/it/HttpIT.java</include>
-                <include>dev/snowdrop/vertx/http/it/Http2IT.java</include>
-                <include>dev/snowdrop/vertx/http/it/HttpSslIT.java</include>
-                <include>dev/snowdrop/vertx/http/it/WebSocketIT.java</include>
-                <include>dev/snowdrop/vertx/http/it/HttpServerOptionsCustomizerIT.java</include>
-                <include>dev/snowdrop/vertx/http/it/HttpServerPropertiesIT.java</include>
-              </includes>
-            </configuration>
-          </execution>
-          <execution>
-            <id>http-file-transfer</id>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-            <phase>integration-test</phase>
-            <configuration>
-              <skip>${it.http.skip.fileTransfer}</skip>
-              <includes>
-                <include>dev/snowdrop/vertx/http/it/HttpFileTransferIT.java</include>
-                <include>dev/snowdrop/vertx/http/it/Http2FileTransferIT.java</include>
-              </includes>
-            </configuration>
-          </execution>
-          <execution>
-            <id>no-openssl</id>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-            <phase>integration-test</phase>
-            <configuration>
-              <includes>
-                <include>dev/snowdrop/vertx/http/it/HttpSslIT.java</include>
-              </includes>
-              <classpathDependencyExcludes>
-                <classpathDependencyExclude>io.netty:netty-tcnative-boringssl-static</classpathDependencyExclude>
-              </classpathDependencyExcludes>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 </project>

@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>dev.snowdrop</groupId>
+    <groupId>com.github.jg513</groupId>
     <artifactId>vertx-spring-boot-samples</artifactId>
     <version>1.0.1-SNAPSHOT</version>
   </parent>
@@ -12,17 +12,17 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>dev.snowdrop</groupId>
+        <groupId>com.github.jg513</groupId>
         <artifactId>vertx-spring-boot-starter-http</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>dev.snowdrop</groupId>
+        <groupId>com.github.jg513</groupId>
         <artifactId>vertx-spring-boot-starter-amqp</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>dev.snowdrop</groupId>
+        <groupId>com.github.jg513</groupId>
         <artifactId>vertx-spring-boot-starter-http-test</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -31,11 +31,11 @@
 
   <dependencies>
     <dependency>
-      <groupId>dev.snowdrop</groupId>
+      <groupId>com.github.jg513</groupId>
       <artifactId>vertx-spring-boot-starter-http</artifactId>
     </dependency>
     <dependency>
-      <groupId>dev.snowdrop</groupId>
+      <groupId>com.github.jg513</groupId>
       <artifactId>vertx-spring-boot-starter-amqp</artifactId>
     </dependency>
     <dependency>
@@ -57,7 +57,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>dev.snowdrop</groupId>
+      <groupId>com.github.jg513</groupId>
       <artifactId>vertx-spring-boot-starter-http-test</artifactId>
       <scope>test</scope>
     </dependency>
