@@ -3,17 +3,21 @@ package dev.snowdrop.vertx.rsocket.server;
 import dev.snowdrop.vertx.rsocket.server.properties.AbstractConfigurableRSocketServerFactory;
 import dev.snowdrop.vertx.rsocket.server.properties.HttpServerOptionsCustomizer;
 import dev.snowdrop.vertx.rsocket.server.properties.HttpServerProperties;
-import io.rsocket.RSocketFactory;
 import io.rsocket.SocketAcceptor;
+import io.rsocket.core.RSocketServer;
 import io.rsocket.transport.ServerTransport;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
-import org.springframework.boot.rsocket.server.RSocketServer;
+import org.springframework.boot.rsocket.server.RSocketServer.Transport;
+import org.springframework.boot.rsocket.server.RSocketServerCustomizer;
+import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 import java.net.InetAddress;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,7 +29,9 @@ public class VertxRSocketServerFactory extends AbstractConfigurableRSocketServer
 
     private final List<HttpServerOptionsCustomizer> httpServerOptionsCustomizers = new LinkedList<>();
 
-    private RSocketServer.Transport transport = RSocketServer.Transport.TCP;
+    private List<RSocketServerCustomizer> rSocketServerCustomizers = new ArrayList<>();
+
+    private Transport transport = Transport.TCP;
 
     private Duration lifecycleTimeout;
 
@@ -45,8 +51,13 @@ public class VertxRSocketServerFactory extends AbstractConfigurableRSocketServer
     }
 
     @Override
-    public void setTransport(RSocketServer.Transport transport) {
+    public void setTransport(Transport transport) {
         this.transport = transport;
+    }
+
+    public void setRSocketServerCustomizers(Collection<? extends RSocketServerCustomizer> rSocketServerCustomizers) {
+        Assert.notNull(rSocketServerCustomizers, "RSocketServerCustomizers must not be null");
+        this.rSocketServerCustomizers = new ArrayList<>(rSocketServerCustomizers);
     }
 
     public void setLifecycleTimeout(Duration lifecycleTimeout) {
@@ -54,12 +65,11 @@ public class VertxRSocketServerFactory extends AbstractConfigurableRSocketServer
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public VertxRSocketServer create(SocketAcceptor socketAcceptor) {
         ServerTransport<VertxCloseableChannel> transport = createTransport();
-        io.rsocket.core.RSocketServer server = io.rsocket.core.RSocketServer.create(socketAcceptor);
-        RSocketFactory.ServerRSocketFactory factory = new RSocketFactory.ServerRSocketFactory(server);
-        Mono<VertxCloseableChannel> starter = factory.transport(transport).start();
+        RSocketServer server = RSocketServer.create(socketAcceptor);
+        this.rSocketServerCustomizers.forEach((customizer) -> customizer.customize(server));
+        Mono<VertxCloseableChannel> starter = server.bind(transport);
         return new VertxRSocketServer(starter, this.lifecycleTimeout);
     }
 
@@ -75,7 +85,7 @@ public class VertxRSocketServerFactory extends AbstractConfigurableRSocketServer
     }
 
     private ServerTransport<VertxCloseableChannel> createTransport() {
-        if (this.transport == RSocketServer.Transport.WEBSOCKET) {
+        if (this.transport == Transport.WEBSOCKET) {
             return createWebSocketTransport();
         }
         return createTcpTransport();
