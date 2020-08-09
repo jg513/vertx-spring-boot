@@ -1,10 +1,10 @@
-package dev.snowdrop.vertx.rsocket.server;
+package dev.snowdrop.vertx.rsocket.server.tcp;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.rsocket.internal.BaseDuplexConnection;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.WebSocketBase;
+import io.vertx.core.net.NetSocket;
 import org.jetbrains.annotations.NotNull;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
@@ -14,22 +14,25 @@ import reactor.core.publisher.Mono;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-public class VertxWebsocketDuplexConnection extends BaseDuplexConnection {
+public class VertxTcpDuplexConnection extends BaseDuplexConnection {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final WebSocketBase webSocketBase;
+    private final NetSocket netSocket;
 
     private final AtomicReference<Flux<ByteBuf>> fluxReference = new AtomicReference<>();
 
-    public VertxWebsocketDuplexConnection(WebSocketBase webSocketBase) {
-        this.webSocketBase = webSocketBase;
+    private boolean closed;
+
+    public VertxTcpDuplexConnection(NetSocket netSocket) {
+        this.netSocket = netSocket;
     }
 
     @Override
     protected void doOnClose() {
-        if (!webSocketBase.isClosed()) {
-            webSocketBase.close();
+        if (!closed) {
+            this.closed = true;
+            this.netSocket.close();
         }
     }
 
@@ -40,7 +43,7 @@ public class VertxWebsocketDuplexConnection extends BaseDuplexConnection {
             return ((Mono<ByteBuf>) frames)
                 .map(byteBuf -> {
                     Buffer buffer = Buffer.buffer(byteBuf);
-                    webSocketBase.writeFinalBinaryFrame(buffer);
+                    netSocket.write(buffer);
                     return buffer;
                 })
                 .then();
@@ -48,7 +51,7 @@ public class VertxWebsocketDuplexConnection extends BaseDuplexConnection {
             return ((Flux<ByteBuf>) frames)
                 .map(byteBuf -> {
                     Buffer buffer = Buffer.buffer(byteBuf);
-                    webSocketBase.writeFinalBinaryFrame(buffer);
+                    netSocket.write(buffer);
                     return buffer;
                 })
                 .then();
@@ -60,9 +63,8 @@ public class VertxWebsocketDuplexConnection extends BaseDuplexConnection {
     public Flux<ByteBuf> receive() {
         Flux<ByteBuf> flux = fluxReference.get();
         if (flux == null) {
-            flux = Flux.create(sink -> webSocketBase.frameHandler(
-                frame -> {
-                    Buffer buffer = frame.binaryData();
+            flux = Flux.create(sink -> netSocket.handler(
+                buffer -> {
                     ByteBuf byteBuf = buffer.getByteBuf();
                     sink.next(byteBuf);
                 }

@@ -13,26 +13,26 @@ public class VertxRSocketServer implements RSocketServer {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Mono<VertxCloseableChannel> starter;
+    private final Mono<VertxAbstractChannel> starter;
 
     private final Duration lifecycleTimeout;
 
-    private VertxCloseableChannel channel;
+    private VertxAbstractChannel channel;
 
-    public VertxRSocketServer(Mono<VertxCloseableChannel> starter, Duration lifecycleTimeout) {
+    public VertxRSocketServer(Mono<VertxAbstractChannel> starter, Duration lifecycleTimeout) {
         this.starter = starter;
         this.lifecycleTimeout = lifecycleTimeout;
     }
 
     @Override
     public void start() throws RSocketServerException {
-        logger.info("VertxRSocketServer start()");
+        logger.info("Vertx RSocket server started");
         this.channel = block(this.starter, this.lifecycleTimeout);
     }
 
     @Override
     public void stop() throws RSocketServerException {
-        logger.info("VertxRSocketServer stop()");
+        logger.info("Vertx RSocket server stopped");
         if (this.channel != null) {
             this.channel.dispose();
             this.channel = null;

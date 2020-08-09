@@ -1,10 +1,11 @@
 package dev.snowdrop.vertx.rsocket.server.properties;
 
 import org.springframework.boot.rsocket.server.ConfigurableRSocketServerFactory;
-import org.springframework.boot.rsocket.server.RSocketServer;
 import org.springframework.boot.rsocket.server.RSocketServerFactory;
 
 import java.net.InetAddress;
+
+import static org.springframework.boot.rsocket.server.RSocketServer.Transport;
 
 public abstract class AbstractConfigurableRSocketServerFactory implements RSocketServerFactory, ConfigurableRSocketServerFactory {
 
@@ -12,7 +13,7 @@ public abstract class AbstractConfigurableRSocketServerFactory implements RSocke
 
     protected InetAddress address;
 
-    protected RSocketServer.Transport transport;
+    protected Transport transport = Transport.TCP;
 
     @Override
     public void setPort(int port) {
@@ -33,11 +34,11 @@ public abstract class AbstractConfigurableRSocketServerFactory implements RSocke
     }
 
     @Override
-    public void setTransport(RSocketServer.Transport transport) {
+    public void setTransport(Transport transport) {
         this.transport = transport;
     }
 
-    public RSocketServer.Transport getTransport() {
+    public Transport getTransport() {
         return transport;
     }
 }

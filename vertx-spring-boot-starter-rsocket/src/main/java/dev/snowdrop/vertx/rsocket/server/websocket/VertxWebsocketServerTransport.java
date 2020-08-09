@@ -1,5 +1,6 @@
-package dev.snowdrop.vertx.rsocket.server;
+package dev.snowdrop.vertx.rsocket.server.websocket;
 
+import dev.snowdrop.vertx.rsocket.server.VertxAbstractChannel;
 import io.rsocket.DuplexConnection;
 import io.rsocket.transport.ServerTransport;
 import io.vertx.core.http.HttpServer;
@@ -13,7 +14,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.Objects;
 
-public class VertxWebsocketServerTransport implements ServerTransport<VertxCloseableChannel> {
+public class VertxWebsocketServerTransport implements ServerTransport<VertxAbstractChannel> {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -29,7 +30,7 @@ public class VertxWebsocketServerTransport implements ServerTransport<VertxClose
 
     @NotNull
     @Override
-    public Mono<VertxCloseableChannel> start(@NotNull ConnectionAcceptor acceptor) {
+    public Mono<VertxAbstractChannel> start(@NotNull ConnectionAcceptor acceptor) {
         Objects.requireNonNull(acceptor, "acceptor must not be null");
 
         server.requestHandler(request -> {
@@ -51,6 +52,6 @@ public class VertxWebsocketServerTransport implements ServerTransport<VertxClose
                 }
             }))
             .block(Duration.ofSeconds(5));
-        return Mono.just(new VertxCloseableChannel(server));
+        return Mono.just(new VertxHttpChannel(server));
     }
 }
